@@ -99,6 +99,14 @@ def delete_box(code):
     db.session.commit()
     return jsonify({"message": f"Kiste {code} wurde gelöscht"})
 
+# --- WEBOBERFLÄCHE ---
+
+# Eine einfache Route, die unsere HTML-Seite lädt
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
+
 if __name__ == '__main__':
-    # Server starten
-    app.run(debug=True, port=5000)
+    # Server starten auf Port 5006
+    print("API läuft auf http://127.0.0.1:5006")
+    app.run(debug=True, port=5006)
