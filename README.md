@@ -1,56 +1,42 @@
-# Kisten-Verwaltungs API 📦
+# Kisten-Verwaltungs API 📦 (Transferarbeit)
 
-Dies ist ein einfaches Schulungsprojekt für eine REST API zur Verwaltung von Lagerkisten.
+Dozent: fhirter | Studierender: momu | Projekt: REST-API für Lagerboxen
 
-## Funktionen
-- **GET /boxes**: Zeigt alle Kisten an.
-- **POST /boxes**: Erstellt eine neue Kiste.
-- **PUT /boxes/<code\>**: Ändert den Inhalt oder Ort einer Kiste.
-- **DELETE /boxes/<code\>**: Löscht eine Kiste.
+## Inbetriebnahme
 
-## Installation & Start (Der Profi-Weg)
-
-1. **Virtuelle Umgebung erstellen:**
+1. **Umgebung vorbereiten:**
    ```bash
    python3 -m venv venv
-   ```
-
-2. **Umgebung aktivieren:**
-   - MacOS/Linux: `source venv/bin/activate`
-   - Windows: `venv\Scripts\activate`
-
-3. **Abhängigkeiten installieren:**
-   ```bash
+   source venv/bin/activate  # MacOS/Linux
    pip install -r requirements.txt
    ```
 
-4. **API starten:**
+2. **API starten:**
    ```bash
    python app.py
    ```
-   Die API läuft unter `http://127.0.0.1:5006`.
+   Läuft unter: `http://127.0.0.1:5006`
 
-## API Beispiele (mit `curl` testen)
+3. **Tests ausführen:**
+   ```bash
+   python test_api.py
+   ```
 
-### 1. Eine Kiste hinzufügen (POST)
-```bash
-curl -X POST -H "Content-Type: application/json" -d '{"code": "K-001", "location": "Keller", "content": "Werkzeug"}' http://127.0.0.1:5006/boxes
-```
+## Erfüllung der REST-Prinzipien
 
-### 2. Alle Kisten abrufen (GET)
-```bash
-curl http://127.0.0.1:5006/boxes
-```
+Dieses Projekt setzt die geforderten REST-Prinzipien wie folgt um:
 
-### 3. Kiste ändern (PUT)
-```bash
-curl -X PUT -H "Content-Type: application/json" -d '{"content": "Altes Werkzeug"}' http://127.0.0.1:5006/boxes/K-001
-```
+*   **Zustandslosigkeit (Statelessness):** Die API speichert keine Session-Daten auf dem Server. Jeder Request enthält alle nötigen Informationen zur Verarbeitung.
+*   **Caching:** Über den `Cache-Control` Header in den GET-Antworten wird dem Client signalisiert, dass Daten für 60 Sekunden gecacht werden dürfen (siehe `add_header` in `app.py`).
+*   **Uniform Interface:**
+    *   **Identification of Resources:** Ressourcen werden eindeutig über URIs identifiziert (z.B. `/boxes/K-001`).
+    *   **Manipulation durch Repräsentationen:** Der Datenaustausch erfolgt ausschließlich via JSON.
+    *   **Self-Descriptive Messages:** Es werden die korrekten HTTP-Verben (GET, POST, PUT, DELETE) und Statuscodes (200, 201, 400, 404) verwendet.
+    *   **Hypermedia (HATEOAS):** Jedes Ressourcen-Objekt enthält ein `_links` Attribut mit Verweisen auf sich selbst und die Collection.
+*   **Persistenz:** Alle Daten werden in einer relationalen SQLite-Datenbank (`boxes.db`) gespeichert.
 
-### 4. Kiste löschen (DELETE)
-```bash
-curl -X DELETE http://127.0.0.1:5006/boxes/K-001
-```
-
-## Datenbank
-Die Daten werden in der lokalen Datei `boxes.db` (SQLite) gespeichert.
+## CRUD Abdeckung
+- **Create:** `POST /boxes`
+- **Read:** `GET /boxes` (Collection) und `GET /boxes/<code\>` (Einzeln)
+- **Update:** `PUT /boxes/<code\>`
+- **Delete:** `DELETE /boxes/<code\>`
