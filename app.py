@@ -43,7 +43,7 @@ def get_boxes():
 # 2. Eine einzelne Kiste abrufen (GET)
 @app.route('/boxes/<string:code>', methods=['GET'])
 def get_box(code):
-    box = Box.query.get(code)
+    box = db.session.get(Box, code)
     if box:
         return jsonify(box.to_dict())
     return jsonify({"error": "Kiste nicht gefunden"}), 404
@@ -58,7 +58,7 @@ def add_box():
         return jsonify({"error": "Fehlende Daten (code, location, content werden benötigt)"}), 400
         
     # Prüfen, ob der Code schon existiert
-    if Box.query.get(data['code']):
+    if db.session.get(Box, data['code']):
         return jsonify({"error": "Eine Kiste mit diesem Code existiert bereits"}), 400
 
     new_box = Box(
@@ -75,7 +75,7 @@ def add_box():
 # 4. Eine Kiste aktualisieren (PUT)
 @app.route('/boxes/<string:code>', methods=['PUT'])
 def update_box(code):
-    box = Box.query.get(code)
+    box = db.session.get(Box, code)
     if not box:
         return jsonify({"error": "Kiste nicht gefunden"}), 404
         
@@ -91,7 +91,7 @@ def update_box(code):
 # 5. Eine Kiste löschen (DELETE)
 @app.route('/boxes/<string:code>', methods=['DELETE'])
 def delete_box(code):
-    box = Box.query.get(code)
+    box = db.session.get(Box, code)
     if not box:
         return jsonify({"error": "Kiste nicht gefunden"}), 404
         

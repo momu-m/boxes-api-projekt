@@ -28,7 +28,29 @@ Dies ist ein einfaches Schulungsprojekt für eine REST API zur Verwaltung von La
    ```bash
    python app.py
    ```
-   Die API läuft unter `http://127.0.0.1:5000`.
+   Die API läuft unter `http://127.0.0.1:5006`.
 
 ## API Beispiele (mit `curl` testen)
-*(Siehe Beispiele im vorherigen Abschnitt oder in der app.py Kommentare)*
+
+### 1. Eine Kiste hinzufügen (POST)
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"code": "K-001", "location": "Keller", "content": "Werkzeug"}' http://127.0.0.1:5006/boxes
+```
+
+### 2. Alle Kisten abrufen (GET)
+```bash
+curl http://127.0.0.1:5006/boxes
+```
+
+### 3. Kiste ändern (PUT)
+```bash
+curl -X PUT -H "Content-Type: application/json" -d '{"content": "Altes Werkzeug"}' http://127.0.0.1:5006/boxes/K-001
+```
+
+### 4. Kiste löschen (DELETE)
+```bash
+curl -X DELETE http://127.0.0.1:5006/boxes/K-001
+```
+
+## Datenbank
+Die Daten werden in der lokalen Datei `boxes.db` (SQLite) gespeichert.
