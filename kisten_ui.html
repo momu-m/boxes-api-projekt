@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kisten Management System</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+        h1 {
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .form-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button.delete {
+            background-color: #dc3545;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+        .json-content {
+            font-family: monospace;
+            font-size: 0.85em;
+            background: #f1f1f1;
+            padding: 5px;
+            display: block;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Kisten Inventar</h1>
+
+    <div class="form-section">
+        <h3>Neue Kiste hinzufügen</h3>
+        <input type="text" id="code" placeholder="CODE (leer lassen für automatische Generierung)">
+        <input type="text" id="location" placeholder="Standort (z.B. Keller, Regal A)">
+        <input type="text" id="content" placeholder='Inhalt (z.B. "Hammer und Schrauben" - einfacher Text)'>
+        <button onclick="saveBox()">Speichern</button>
+        <button onclick="fetchAllBoxes()" style="background-color: #6c757d;">Liste aktualisieren</button>
+    </div>
+
+    <h3>Alle Kisten</h3>
+    <button onclick="fetchAllBoxes()" style="margin-bottom: 10px; background-color: #28a745;">Liste laden</button>
+    <table id="boxesTable">
+        <thead>
+            <tr>
+                <th>CODE</th>
+                <th>Standort</th>
+                <th>Inhalt (JSON)</th>
+                <th>Aktionen</th>
+            </tr>
+        </thead>
+        <tbody id="boxesBody">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    const API_URL = "http://localhost:5006/api/boxes";
+
+    async function fetchAllBoxes() {
+        try {
+            const response = await fetch(API_URL);
+            const boxes = await response.json();
+            const tableBody = document.getElementById('boxesBody');
+            tableBody.innerHTML = '';
+
+            boxes.forEach(box => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${box.CODE}</strong></td>
+                    <td>${box.Location}</td>
+                    <td><code class="json-content">${JSON.stringify(box.Content, null, 2)}</code></td>
+                    <td>
+                        <button class="delete" onclick="deleteBox('${box.CODE}')">Löschen</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error("Fehler beim Laden:", error);
+            alert("Fehler beim Laden der Daten. Läuft der Server?");
+        }
+    }
+
+    async function saveBox() {
+        const code = document.getElementById('code').value;
+        const location = document.getElementById('location').value;
+        const contentRaw = document.getElementById('content').value;
+
+        // Content als einfaches Objekt erstellen
+        const contentObj = contentRaw ? {"description": contentRaw} : {};
+
+        const data = {
+            Location: location,
+            Content: contentObj
+        };
+        if (code) data.CODE = code;
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                document.getElementById('code').value = '';
+                document.getElementById('location').value = '';
+                document.getElementById('content').value = '';
+                fetchAllBoxes();
+            } else {
+                const err = await response.json();
+                alert("Fehler: " + err.error);
+            }
+        } catch (error) {
+            alert("Verbindung zum Server fehlgeschlagen.");
+        }
+    }
+
+    async function deleteBox(code) {
+        if (!confirm(`Kiste ${code} wirklich löschen?`)) return;
+
+        try {
+            const response = await fetch(`${API_URL}/${code}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                fetchAllBoxes();
+            }
+        } catch (error) {
+            alert("Fehler beim Löschen.");
+        }
+    }
+
+    // Beim Laden der Seite nichts automatisch laden - verwende den Button "Liste laden"
+    // window.onload = fetchAllBoxes;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Python temporäre Dateien
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Datenbank (SQLite)
+# In Lernprojekten checken wir sie oft nicht ein, damit sie lokal bleibt
+boxes.db
+
+# Virtuelle Umgebungen
+venv/
+.venv/
+env/
