@@ -47,8 +47,30 @@ def add_header(response):
 
 @app.route('/boxes', methods=['GET'])
 def get_boxes():
-    all_boxes = Box.query.all()
-    return jsonify([box.to_dict() for box in all_boxes])
+    location_filter = request.args.get('location')
+    if location_filter:
+        # Filterung anwenden, falls Parameter vorhanden (wie im alten Notebook)
+        filtered_boxes = Box.query.filter_by(location=location_filter).all()
+        return jsonify([box.to_dict() for box in filtered_boxes])
+    else:
+        all_boxes = Box.query.all()
+        return jsonify([box.to_dict() for box in all_boxes])
+
+@app.route('/stats', methods=['GET'])
+def get_stats():
+    """Gibt Statistiken zurück (wie im alten Notebook)."""
+    total_boxes = Box.query.count()
+    
+    # Verteilung nach Standort berechnen
+    all_locations = [box.location for box in Box.query.all()]
+    location_counts = {}
+    for loc in all_locations:
+        location_counts[loc] = location_counts.get(loc, 0) + 1
+        
+    return jsonify({
+        "total_boxes": total_boxes,
+        "locations": location_counts
+    })
 
 @app.route('/boxes/<string:code>', methods=['GET'])
 def get_box(code):

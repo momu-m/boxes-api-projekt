@@ -47,5 +47,32 @@ class BoxApiTestCase(unittest.TestCase):
         response = self.app.get('/boxes/D-1')
         self.assertEqual(response.status_code, 404)
 
+    def test_filter_boxes(self):
+        """Testet die Filterung nach Location."""
+        with app.app_context():
+            db.session.add(Box(code="F-1", location="Keller", content="A"))
+            db.session.add(Box(code="F-2", location="Dach", content="B"))
+            db.session.add(Box(code="F-3", location="Keller", content="C"))
+            db.session.commit()
+            
+        # Filtern nach 'Keller' -> Sollte 2 Ergebnisse liefern
+        response = self.app.get('/boxes?location=Keller')
+        data = json.loads(response.data)
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]['location'], "Keller")
+
+    def test_stats_endpoint(self):
+        """Testet den Statistik-Endpunkt."""
+        with app.app_context():
+            db.session.add(Box(code="S-1", location="Lager", content="X"))
+            db.session.add(Box(code="S-2", location="Lager", content="Y"))
+            db.session.commit()
+            
+        response = self.app.get('/stats')
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data['total_boxes'], 2)
+        self.assertEqual(data['locations']['Lager'], 2)
+
 if __name__ == '__main__':
     unittest.main()
