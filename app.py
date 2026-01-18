@@ -122,5 +122,6 @@ def index():
     return app.send_static_file('index.html')
 
 if __name__ == '__main__':
-    print("API läuft auf http://127.0.0.1:5006")
-    app.run(debug=True, port=5006)
+    print("API läuft auf http://0.0.0.0:5006")
+    # host='0.0.0.0' macht den Server im lokalen Netzwerk verfügbar
+    app.run(host='0.0.0.0', debug=True, port=5006)
