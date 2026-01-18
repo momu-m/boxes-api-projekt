@@ -35,8 +35,10 @@ Dieses Projekt setzt die geforderten REST-Prinzipien wie folgt um:
     *   **Hypermedia (HATEOAS):** Jedes Ressourcen-Objekt enthält ein `_links` Attribut mit Verweisen auf sich selbst und die Collection.
 *   **Persistenz:** Alle Daten werden in einer relationalen SQLite-Datenbank (`boxes.db`) gespeichert.
 
-## CRUD Abdeckung
+## CRUD & Features
 - **Create:** `POST /boxes`
-- **Read:** `GET /boxes` (Collection) und `GET /boxes/<code\>` (Einzeln)
+- **Read:** `GET /boxes` (Alle) & `GET /boxes/<code\>` (Einzeln)
 - **Update:** `PUT /boxes/<code\>`
 - **Delete:** `DELETE /boxes/<code\>`
+- **🔍 Filtern:** `GET /boxes?location=Keller` (Filtert nach Ort)
+- **📊 Statistik:** `GET /stats` (Zeigt Anzahl Kisten & Verteilung)
