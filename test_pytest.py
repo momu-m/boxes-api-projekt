@@ -8,7 +8,8 @@ BASE_URL = "http://127.0.0.1:5006"
 ENDPOINT = "boxes"
 
 # Ein Test-Item (eine Kiste)
-ITEM = {"code": "TEST-FYI", "location": "Testlabor", "content": "Wichtige Proben"}
+# WICHTIG: Code darf maximal 4 Zeichen lang sein!
+ITEM = {"code": "T-01", "location": "Testlabor", "content": "Wichtige Proben"}
 
 @pytest.fixture(scope="session")
 def base_url():
@@ -54,7 +55,7 @@ class TestItemsAPI:
         """Test POST - Create new item"""
         # Wir brauchen einen neuen Code für diesen speziellen Test, damit er nicht kollidiert
         test_item = ITEM.copy()
-        test_item["code"] = "TEST-CREATE"
+        test_item["code"] = "T-02"
         
         response = requests.post(items_endpoint, json=test_item)
         

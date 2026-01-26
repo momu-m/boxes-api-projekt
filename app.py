@@ -80,21 +80,14 @@ def add_box():
     data = request.get_json()
     
     # Prüfung: Sind alle Daten da?
-    # Prüfung: Nur der CODE ist Pflicht. Rest ist optional.
-    # Das erfüllt die Anforderung: "Eine Kiste erstellen mit Standort..." (ohne Inhalt) etc.
-    if not data or 'code' not in data:
-        return jsonify({"error": "Der Code fehlt! Eine Kiste braucht eine Nummer."}), 400
+    if not data or 'code' not in data or 'location' not in data or 'content' not in data:
+        return jsonify({"error": "Fehlende Daten: Code, Ort und Inhalt werden benötigt"}), 400
         
     # Prüfung: Existiert der Code schon?
     if db.session.get(Box, data['code']):
         return jsonify({"error": "Dieser Code existiert bereits"}), 400
 
-    # Wenn nichts angegeben ist, lassen wir es leer ("")
-    # Das erfüllt "Inhalt einer Kiste löschen" (indem man ihn leer lässt)
-    loc = data.get('location', "")
-    con = data.get('content', "")
-
-    new_box = Box(code=data['code'], location=loc, content=con)
+    new_box = Box(code=data['code'], location=data['location'], content=data['content'])
     db.session.add(new_box)
     db.session.commit()
     
@@ -132,32 +125,7 @@ def delete_box(code):
 def get_stats():
     """Zeigt einfache Statistiken an."""
     total_boxes = Box.query.count()
-    
-    # Neu: Anzahl Locationen ausgeben (Wie im Bild gewünscht)
-    # Wir holen alle Orte, machen sie einzigartig (set) und zählen sie.
-    all_boxes = Box.query.all()
-    unique_locations = set([b.location for b in all_boxes if b.location])
-    
-    return jsonify({
-        "total_boxes": total_boxes,
-        "total_locations": len(unique_locations)
-    })
-
-# Neu: Liste aller Locationen ausgeben
-@app.route('/locations', methods=['GET'])
-def get_locations():
-    """Zeigt eine Liste aller Orte, wo Kisten stehen."""
-    all_boxes = Box.query.all()
-    unique_locations = sorted(list(set([b.location for b in all_boxes if b.location])))
-    return jsonify(unique_locations)
-
-# Neu: Alle Kisten auflisten (CODE) - Nur die Codes
-@app.route('/boxes/codes', methods=['GET'])
-def get_box_codes():
-    """Zeigt nur die Codes aller Kisten."""
-    all_boxes = Box.query.all()
-    # Wir geben eine Liste zurück, die nur die Codes enthält
-    return jsonify([b.code for b in all_boxes])
+    return jsonify({"total_boxes": total_boxes})
 
 if __name__ == '__main__':
     print("API läuft auf http://0.0.0.0:5006")
