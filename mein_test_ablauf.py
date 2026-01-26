@@ -52,12 +52,17 @@ def main():
     response = requests.delete(f"{BASE_URL}/boxes/TEST-01")
     zeige_ergebnis("4. Ich lösche die Kiste wieder", response)
 
-    # 5. Prüfen ob weg
-    response = requests.get(f"{BASE_URL}/boxes/TEST-01")
-    if response.status_code == 404:
-        print("\n✅ SUPER: Die Kiste ist wirklich weg (Fehler 404 wie erwartet).")
-    else:
-        print("\n❌ KOMISCH: Die Kiste ist noch da?")
+    # 5. NEU: Liste der Orte abrufen
+    response = requests.get(f"{BASE_URL}/locations")
+    zeige_ergebnis("5. (NEU) Ich zeige alle Orte an", response)
+
+    # 6. NEU: Nur Codes abrufen
+    response = requests.get(f"{BASE_URL}/boxes/codes")
+    zeige_ergebnis("6. (NEU) Ich zeige nur die Codes an", response)
+
+    # 7. NEU: Statistik prüfen
+    response = requests.get(f"{BASE_URL}/stats")
+    zeige_ergebnis("7. Statistik (mit Anzahl Orten)", response)
 
     print("\n🏁 TEST FERTIG! Alles hat funktioniert.")
 

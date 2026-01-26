@@ -109,5 +109,46 @@ class BoxApiTestCase(unittest.TestCase):
         self.assertEqual(len(data), 2)
         self.assertEqual(data[0]['location'], "Keller")
 
+    def test_6_flexible_create(self):
+        """Test 6: Kann ich Kisten ohne Inhalt/Ort erstellen?"""
+        # Nur Code und Ort (ohne Inhalt)
+        resp1 = self.app.post('/boxes', json={"code": "FLEX-1", "location": "Flur"})
+        self.assertEqual(resp1.status_code, 201)
+        
+        # Nur Code (ohne alles)
+        resp2 = self.app.post('/boxes', json={"code": "FLEX-2"})
+        self.assertEqual(resp2.status_code, 201)
+        
+        # Prüfen ob sie da sind
+        check = self.app.get('/boxes/FLEX-2')
+        data = json.loads(check.data)
+        self.assertEqual(data['location'], "") # Sollte leer sein
+
+    def test_7_new_endpoints(self):
+        """Test 7: Funktionieren die neuen Listen (Locations, Codes)?"""
+        with app.app_context():
+            db.session.add(Box(code="L-1", location="Berlin", content="A"))
+            db.session.add(Box(code="L-2", location="Bern", content="B"))
+            db.session.add(Box(code="L-3", location="Berlin", content="C")) # Berlin doppelt
+            db.session.commit()
+            
+        # A) Teste /locations
+        resp_loc = self.app.get('/locations')
+        locs = json.loads(resp_loc.data)
+        self.assertIn("Berlin", locs)
+        self.assertIn("Bern", locs)
+        self.assertEqual(len(locs), 2) # Berlin soll nur einmal zählen (unique)
+        
+        # B) Teste /boxes/codes
+        resp_codes = self.app.get('/boxes/codes')
+        codes = json.loads(resp_codes.data)
+        self.assertIn("L-1", codes)
+        self.assertIn("L-2", codes)
+        
+        # C) Teste /stats (neues Feld total_locations)
+        resp_stats = self.app.get('/stats')
+        stats = json.loads(resp_stats.data)
+        self.assertEqual(stats['total_locations'], 2)
+
 if __name__ == '__main__':
     unittest.main()
