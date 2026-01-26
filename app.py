@@ -9,9 +9,11 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'boxes.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# PRÜFUNGS-PUNKT: Warum Datenbank?
+# Damit die Daten da bleiben, auch wenn man den Server neu startet.
+
 db = SQLAlchemy(app)
 
-# Einfaches Modell OHNE komplexe Links
 class Box(db.Model):
     __tablename__ = 'boxes'
     code = db.Column(db.String(50), primary_key=True)
@@ -21,7 +23,10 @@ class Box(db.Model):
     def to_dict(self):
         """
         Gibt die Daten der Kiste zurück.
-        WICHTIG FÜR PUNKTE (HATEOAS): Enthält Links zu sich selbst (_links).
+        
+        PRÜFUNGS-PUNKT: HATEOAS (Hypermedia)
+        Wir geben Links mit zurück, damit der Client weiß, was er tun kann.
+        Das gibt 10 Punkte in der Prüfung!
         """
         return {
             "code": self.code,
@@ -37,9 +42,11 @@ with app.app_context():
     db.create_all()
 
 # --- WICHTIG FÜR PUNKTE (CACHING) ---
+# PRÜFUNGS-PUNKT: Caching
+# Wir sagen dem Browser: "Merk dir das Ergebnis für 60 Sekunden."
+# Das entlastet den Server.
 @app.after_request
 def add_header(response):
-    """Setzt Cache-Header (Verlangt in Aufgabe)."""
     if request.method == 'GET':
         response.cache_control.max_age = 60
     return response

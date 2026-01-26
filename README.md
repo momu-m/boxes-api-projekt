@@ -7,7 +7,7 @@ Dies ist eine schlanke REST-API zur Verwaltung von Lagerkisten. Der Fokus liegt 
 *   `app.py`: Die Haupt-Anwendung (Flask mit SQLAlchemy). Einfach und verständlich.
 *   `test_api.py`: Die Test-Suite für `app.py` (CRUD-Tests).
 *   `boxes.db`: Die SQLite-Datenbank.
-*   *(Optional)* `tessdt.py` & `test_full_tessdt.py`: Eine alternative Implementierung mit reinem SQL und erweiterten Tests.
+
 
 ## Installation & Start
 
@@ -33,11 +33,7 @@ Um zu beweisen, dass die API korrekt funktioniert, gibt es automatisierte Tests.
    ```
    Dies testet Erstellen, Lesen, Aktualisieren, Löschen und Filtern.
 
-2. **Vollständige Test-Suite (mit E2E):**
-   ```bash
-   python test_full_tessdt.py
-   ```
-   Dies führt Unit-Tests, Integration-Tests und End-to-End Tests durch (siehe Code für Details).
+
 
 ## Erfüllung der REST-Prinzipien (Laut Aufgabenstellung)
 
