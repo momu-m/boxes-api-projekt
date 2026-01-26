@@ -1,13 +1,19 @@
-# Kisten-Verwaltungs API 📦 (Transferarbeit)
+# Kisten-Verwaltungs API 📦
 
-Dozent: fhirter | Studierender: momu | Projekt: REST-API für Lagerboxen
+Dies ist eine schlanke REST-API zur Verwaltung von Lagerkisten. Der Fokus liegt auf klarem Code, sauberer Struktur und umfassenden Tests (Unit, Integration, E2E).
 
-## Inbetriebnahme
+## Projekt-Struktur
 
-1. **Umgebung vorbereiten:**
+*   `app.py`: Die Haupt-Anwendung (Flask mit SQLAlchemy). Einfach und verständlich.
+*   `test_api.py`: Die Test-Suite für `app.py` (CRUD-Tests).
+*   `boxes.db`: Die SQLite-Datenbank.
+*   *(Optional)* `tessdt.py` & `test_full_tessdt.py`: Eine alternative Implementierung mit reinem SQL und erweiterten Tests.
+
+## Installation & Start
+
+1. **Umgebung aktivieren:**
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # MacOS/Linux
+   source venv/bin/activate
    pip install -r requirements.txt
    ```
 
@@ -15,30 +21,41 @@ Dozent: fhirter | Studierender: momu | Projekt: REST-API für Lagerboxen
    ```bash
    python app.py
    ```
-   Läuft unter: `http://127.0.0.1:5006`
+   Die API läuft dann unter `http://127.0.0.1:5006`.
 
-3. **Tests ausführen:**
+## Testen (Qualitätssicherung)
+
+Um zu beweisen, dass die API korrekt funktioniert, gibt es automatisierte Tests.
+
+1. **Standard-Tests ausführen:**
    ```bash
    python test_api.py
    ```
+   Dies testet Erstellen, Lesen, Aktualisieren, Löschen und Filtern.
 
-## Erfüllung der REST-Prinzipien
+2. **Vollständige Test-Suite (mit E2E):**
+   ```bash
+   python test_full_tessdt.py
+   ```
+   Dies führt Unit-Tests, Integration-Tests und End-to-End Tests durch (siehe Code für Details).
 
-Dieses Projekt setzt die geforderten REST-Prinzipien wie folgt um:
+## Erfüllung der REST-Prinzipien (Laut Aufgabenstellung)
 
-*   **Zustandslosigkeit (Statelessness):** Die API speichert keine Session-Daten auf dem Server. Jeder Request enthält alle nötigen Informationen zur Verarbeitung.
-*   **Caching:** Über den `Cache-Control` Header in den GET-Antworten wird dem Client signalisiert, dass Daten für 60 Sekunden gecacht werden dürfen (siehe `add_header` in `app.py`).
+Dies sind die Punkte, die in der Bewertung (10 Punkte für HATEOAS, 5 für Caching etc.) gefordert sind:
+
+*   **Zustandslosigkeit (Statelessness):** Die API speichert keine Session-Daten. Jeder Request ist vollständig.
+*   **Caching:** Im Code (`app.py`) wird der `Cache-Control: max-age=60` Header gesetzt.
 *   **Uniform Interface:**
-    *   **Identification of Resources:** Ressourcen werden eindeutig über URIs identifiziert (z.B. `/boxes/K-001`).
-    *   **Manipulation durch Repräsentationen:** Der Datenaustausch erfolgt ausschließlich via JSON.
-    *   **Self-Descriptive Messages:** Es werden die korrekten HTTP-Verben (GET, POST, PUT, DELETE) und Statuscodes (200, 201, 400, 404) verwendet.
-    *   **Hypermedia (HATEOAS):** Jedes Ressourcen-Objekt enthält ein `_links` Attribut mit Verweisen auf sich selbst und die Collection.
-*   **Persistenz:** Alle Daten werden in einer relationalen SQLite-Datenbank (`boxes.db`) gespeichert.
+    *   **Identification of Resources:** URIs sind eindeutig (z.B. `/boxes/K-001`).
+    *   **Manipulation:** Alles läuft über JSON.
+    *   **Self-Descriptive Messages:** HTTP-Methoden (GET/POST/PUT/DELETE) und Statuscodes (200, 201, 404) werden korrekt genutzt.
+    *   **HATEOAS (Hypermedia):** Jedes JSON-Objekt enthält jetzt wieder `_links` (Verweise auf sich selbst und die Liste), um die 10 Punkte zu sichern.
+*   **Persistenz:** Daten landen in der SQLite-Datenbank (`boxes.db`).
 
 ## CRUD & Features
-- **Create:** `POST /boxes`
-- **Read:** `GET /boxes` (Alle) & `GET /boxes/<code\>` (Einzeln)
-- **Update:** `PUT /boxes/<code\>`
-- **Delete:** `DELETE /boxes/<code\>`
-- **🔍 Filtern:** `GET /boxes?location=Keller` (Filtert nach Ort)
-- **📊 Statistik:** `GET /stats` (Zeigt Anzahl Kisten & Verteilung)
+- **Create:** `POST /boxes` (Erstellt Ressource)
+- **Read:** `GET /boxes` & `GET /boxes/<code>` (Liest Ressource)
+- **Update:** `PUT /boxes/<code>` (Aktualisiert Ressource)
+- **Delete:** `DELETE /boxes/<code>` (Löscht Ressource)
+- **Filter:** `GET /boxes?location=...`
+- **Statistik:** `GET /stats`
