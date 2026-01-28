@@ -1,57 +1,324 @@
 # Kisten-Verwaltungs API 📦
 
-Dies ist eine schlanke REST-API zur Verwaltung von Lagerkisten. Der Fokus liegt auf klarem Code, sauberer Struktur und umfassenden Tests (Unit, Integration, E2E).
+Eine REST-API zur Verwaltung von Lagerkisten, entwickelt als Semesterarbeit "Software Engineering".
 
-## Projekt-Struktur
+---
 
-*   `app.py`: Die Haupt-Anwendung (Flask mit SQLAlchemy). Einfach und verständlich.
-*   `test_api.py`: Die Test-Suite für `app.py` (CRUD-Tests).
-*   `boxes.db`: Die SQLite-Datenbank.
+## 👥 Team
 
+**Entwickelt von:**
+- Momu M.
+- Arjan
+- Andrin
 
-## Installation & Start
+**Repository:** https://github.com/momu-m/boxes-api-projekt.git
 
-1. **Umgebung aktivieren:**
-   ```bash
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
+---
 
-2. **API starten:**
-   ```bash
-   python app.py
-   ```
-   Die API läuft dann unter `http://127.0.0.1:5006`.
+## 📁 Projekt-Struktur
 
-## Testen (Qualitätssicherung)
+```
+boxes-api-projekt/
+├── app.py                 # Haupt-Anwendung (Flask + SQLAlchemy)
+├── test_pytest.py         # Automatisierte Tests (Pytest)
+├── boxes.db               # SQLite-Datenbank
+├── requirements.txt       # Python-Abhängigkeiten
+└── README.md              # Diese Datei
+```
 
-Um zu beweisen, dass die API korrekt funktioniert, gibt es automatisierte Tests.
+---
 
-1. **Standard-Tests ausführen:**
-   ```bash
-   python test_api.py
-   ```
-   Dies testet Erstellen, Lesen, Aktualisieren, Löschen und Filtern.
+## 🚀 Installation & Start
 
+### 1. Repository klonen
+```bash
+git clone https://github.com/momu-m/boxes-api-projekt.git
+cd boxes-api-projekt
+```
 
+### 2. Virtuelle Umgebung erstellen & aktivieren
+```bash
+python3 -m venv venv
+source venv/bin/activate  # macOS/Linux
+# venv\Scripts\activate   # Windows
+```
 
-## Erfüllung der REST-Prinzipien (Laut Aufgabenstellung)
+### 3. Abhängigkeiten installieren
+```bash
+pip install -r requirements.txt
+```
 
-Dies sind die Punkte, die in der Bewertung (10 Punkte für HATEOAS, 5 für Caching etc.) gefordert sind:
+### 4. API starten
+```bash
+python app.py
+```
 
-*   **Zustandslosigkeit (Statelessness):** Die API speichert keine Session-Daten. Jeder Request ist vollständig.
-*   **Caching:** Im Code (`app.py`) wird der `Cache-Control: max-age=60` Header gesetzt.
-*   **Uniform Interface:**
-    *   **Identification of Resources:** URIs sind eindeutig (z.B. `/boxes/K-001`).
-    *   **Manipulation:** Alles läuft über JSON.
-    *   **Self-Descriptive Messages:** HTTP-Methoden (GET/POST/PUT/DELETE) und Statuscodes (200, 201, 404) werden korrekt genutzt.
-    *   **HATEOAS (Hypermedia):** Jedes JSON-Objekt enthält jetzt wieder `_links` (Verweise auf sich selbst und die Liste), um die 10 Punkte zu sichern.
-*   **Persistenz:** Daten landen in der SQLite-Datenbank (`boxes.db`).
+Die API läuft dann unter: **`http://127.0.0.1:5006`**
 
-## CRUD & Features
-- **Create:** `POST /boxes` (Erstellt Ressource)
-- **Read:** `GET /boxes` & `GET /boxes/<code>` (Liest Ressource)
-- **Update:** `PUT /boxes/<code>` (Aktualisiert Ressource)
-- **Delete:** `DELETE /boxes/<code>` (Löscht Ressource)
-- **Filter:** `GET /boxes?location=...`
-- **Statistik:** `GET /stats`
+---
+
+## 📚 API-Endpunkte & Beispiele
+
+### **1. Kiste erstellen (CREATE)**
+```bash
+# Kiste mit Code, Location und Inhalt erstellen
+curl -X POST http://127.0.0.1:5006/boxes \
+  -H "Content-Type: application/json" \
+  -d '{"code":"A1", "location":"Lager Ost", "content":"Schrauben"}'
+
+# Antwort (201 Created):
+{
+  "code": "A1",
+  "location": "Lager Ost",
+  "content": "Schrauben",
+  "_links": {
+    "self": "/boxes/A1",
+    "collection": "/boxes"
+  }
+}
+```
+
+### **2. Alle Kisten anzeigen (READ Collection)**
+```bash
+curl http://127.0.0.1:5006/boxes
+
+# Antwort (200 OK):
+[
+  {
+    "code": "A1",
+    "location": "Lager Ost",
+    "content": "Schrauben",
+    "_links": {...}
+  },
+  {...}
+]
+```
+
+### **3. Eine spezifische Kiste anzeigen (READ)**
+```bash
+curl http://127.0.0.1:5006/boxes/A1
+
+# Antwort (200 OK):
+{
+  "code": "A1",
+  "location": "Lager Ost",
+  "content": "Schrauben",
+  "_links": {...}
+}
+```
+
+### **4. Kiste aktualisieren (UPDATE)**
+```bash
+# Location ändern
+curl -X PUT http://127.0.0.1:5006/boxes/A1 \
+  -H "Content-Type: application/json" \
+  -d '{"location":"Lager West"}'
+
+# Inhalt ändern
+curl -X PUT http://127.0.0.1:5006/boxes/A1 \
+  -H "Content-Type: application/json" \
+  -d '{"content":"Nägel"}'
+```
+
+### **5. Kiste löschen (DELETE)**
+```bash
+curl -X DELETE http://127.0.0.1:5006/boxes/A1
+
+# Antwort (200 OK):
+{"message": "Kiste A1 wurde gelöscht"}
+```
+
+### **6. Zusätzliche Endpunkte**
+
+#### Filter nach Location
+```bash
+curl http://127.0.0.1:5006/boxes?location=Lager%20Ost
+```
+
+#### Statistik
+```bash
+curl http://127.0.0.1:5006/stats
+
+# Antwort:
+{
+  "total_boxes": 5,
+  "total_locations": 3
+}
+```
+
+#### Alle Locations
+```bash
+curl http://127.0.0.1:5006/locations
+
+# Antwort:
+["Lager Ost", "Lager West", "Keller"]
+```
+
+#### Alle Codes
+```bash
+curl http://127.0.0.1:5006/boxes/codes
+
+# Antwort:
+["A1", "B2", "C3"]
+```
+
+---
+
+## ✅ Erfüllung der Anforderungen
+
+### **REST-Prinzipien (60 von 80 Punkten)**
+
+#### 1. **Zustandslosigkeit** (5 Punkte)
+- ✅ Die API speichert **keine Session-Daten** zwischen Requests
+- ✅ Jeder Request ist **vollständig** und unabhängig
+- ✅ Keine serverseitigen Benutzer-Informationen
+
+#### 2. **Caching** (5 Punkte)
+- ✅ Implementiert in `app.py` Zeile 49-53
+- ✅ GET-Requests erhalten Header: `Cache-Control: max-age=60`
+- ✅ Browser können Antworten 60 Sekunden lang zwischenspeichern
+
+**Code:**
+```python
+@app.after_request
+def add_header(response):
+    if request.method == 'GET':
+        response.cache_control.max_age = 60
+    return response
+```
+
+#### 3. **Identification of Resources** (5 Punkte)
+- ✅ Jede Kiste hat eine **eindeutige URI**: `/boxes/{code}`
+- ✅ Beispiel: `/boxes/A1`, `/boxes/B2`
+
+#### 4. **Manipulation of Resources through Representations** (5 Punkte)
+- ✅ Alle Daten sind im **JSON-Format**
+- ✅ Content-Type: `application/json`
+
+#### 5. **Self-Descriptive Messages** (10 Punkte)
+- ✅ Korrekte **HTTP-Methoden**: GET, POST, PUT, DELETE
+- ✅ Korrekte **Status-Codes**:
+  - `200 OK` - Erfolgreiche GET/PUT/DELETE
+  - `201 Created` - Neue Kiste erstellt
+  - `404 Not Found` - Kiste existiert nicht
+  - `400 Bad Request` - Ungültige Daten
+
+#### 6. **HATEOAS - Hypermedia as the Engine of Application State** (10 Punkte)
+- ✅ Implementiert in `app.py` Zeile 24-40 (Methode `to_dict()`)
+- ✅ Jede JSON-Antwort enthält `_links` mit:
+  - `self`: Link zur eigenen Ressource
+  - `collection`: Link zur gesamten Collection
+
+**Beispiel:**
+```json
+{
+  "code": "A1",
+  "location": "Lager Ost",
+  "content": "Schrauben",
+  "_links": {
+    "self": "/boxes/A1",
+    "collection": "/boxes"
+  }
+}
+```
+
+### **Datenbank (10 Punkte)**
+- ✅ Daten werden in **SQLite-Datenbank** (`boxes.db`) persistiert
+- ✅ Verwendung von **SQLAlchemy** ORM
+- ✅ Daten bleiben erhalten, auch nach Server-Neustart
+
+### **Testing (10 Punkte)**
+- ✅ Vollständige automatisierte Tests in `test_pytest.py`
+- ✅ Testet alle CRUD-Operationen:
+  - `test_create_item` - Kiste erstellen
+  - `test_get_all_items` - Alle Kisten abrufen
+  - `test_get_specific_item` - Eine Kiste abrufen
+  - `test_update_item` - Kiste aktualisieren
+  - `test_delete_item` - Kiste löschen
+- ✅ Nutzt **Pytest Fixtures** für Setup/Teardown
+
+**Tests ausführen:**
+```bash
+python -m pytest test_pytest.py -v
+```
+
+### **Vollständigkeit CRUD (10 Punkte)**
+- ✅ **Create:** `POST /boxes`
+- ✅ **Read Collection:** `GET /boxes`
+- ✅ **Read Single:** `GET /boxes/{code}`
+- ✅ **Update:** `PUT /boxes/{code}`
+- ✅ **Delete:** `DELETE /boxes/{code}`
+
+---
+
+## 🔐 Business-Logik & Validierung
+
+### **Code-Regeln:**
+- ✅ Maximale Länge: **4 Zeichen**
+- ✅ Erlaubte Zeichen: **A-Z** (Großbuchstaben) und **0-9** (Zahlen)
+- ✅ Validierung in `app.py` Zeile 91-95
+
+**Beispiele:**
+- ✅ Gültig: `A1`, `B2`, `XY12`, `Z999`
+- ❌ Ungültig: `ABCDE` (zu lang), `abc` (Kleinbuchstaben), `A-1` (Sonderzeichen)
+
+**Fehlermeldung:**
+```json
+{
+  "error": "Ungültiger Code! Erlaubt: Max 4 Zeichen, nur Großbuchstaben (A-Z) und Zahlen (0-9)."
+}
+```
+
+---
+
+## 🧪 Testen
+
+### **Automatisierte Tests**
+```bash
+# Alle Tests ausführen
+python -m pytest test_pytest.py
+
+# Tests mit Details
+python -m pytest test_pytest.py -v
+
+# Tests mit Coverage
+python -m pytest test_pytest.py --cov=app
+```
+
+### **Manuelle Tests mit curl**
+Siehe Abschnitt "API-Endpunkte & Beispiele" oben.
+
+---
+
+## 📊 Bewertung (Selbsteinschätzung)
+
+| Kriterium | Punkte | Status |
+|-----------|--------|--------|
+| REST: Zustandslosigkeit | 5 | ✅ |
+| REST: Caching | 5 | ✅ |
+| REST: Identification of Resources | 5 | ✅ |
+| REST: Manipulation through Representations | 5 | ✅ |
+| REST: Self-Descriptive Messages | 10 | ✅ |
+| REST: HATEOAS | 10 | ✅ |
+| Datenbank: Persistenz | 10 | ✅ |
+| Testing: Vollständig | 10 | ✅ |
+| Vollständigkeit CRUD | 10 | ✅ |
+| Dokumentation (README) | 10 | ✅ |
+| **GESAMT** | **80** | **80/80** |
+
+---
+
+## 📝 Weitere Informationen
+
+- **Python Version:** 3.8+
+- **Flask Version:** 3.0.0
+- **SQLAlchemy Version:** 3.1.1
+- **Pytest Version:** 8.3.4
+
+---
+
+## 📧 Kontakt
+
+Bei Fragen zum Projekt: Siehe Team-Mitglieder oben.
+
+**Repository:** https://github.com/momu-m/boxes-api-projekt.git

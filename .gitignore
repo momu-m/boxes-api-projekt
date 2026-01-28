@@ -11,3 +11,16 @@ boxes.db
 venv/
 .venv/
 env/
+
+# pytest cache
+.pytest_cache/
+
+# macOS Dateien
+.DS_Store
+
+# Team-Dateien (nur lokal, nicht auf GitHub)
+TEAM_INFO.md
+PRAESENTATION.md
+GITHUB_ANLEITUNG.md
+ERKLAERUNG_FUER_MICH.md
+
